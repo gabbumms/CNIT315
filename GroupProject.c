@@ -1,64 +1,82 @@
 #include <stdio.h>
 #include <string.h>
 #include "cJSON.h"
+#include "cJSON.c"
 #include <stdlib.h>
 #include <unistd.h>
 #include <string.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <netdb.h>
+#include <curl/curl.h>
 
-char[] sendRequest(char requestText[1024])
+char* httpResponse;
+
+struct string
 {
-  struct hostent *server;
-  struct sockaddr_in serv_addr;
-  int sockfd, bytes, sent, received, total;
-  char response[4096];
+  char *text;
+  size_t length;
+};
 
-  sockfd = socket(AF_INET, SOCK_STREAM, 0);
-  if (sockfd < 0) printf("\nError opening socket.");
-
-  server = gethostbyname("www.googleapis.com");
-  if (server == NULL) printf("\nError resolving host.");
-
-  memset(&serv_addr, 0, sizeof(serv_addr));
-  serv_addr.sin_family = AF_INET;
-  serv_addr.sin_port = htons(80);
-  memcpy(&serv_addr.sin_addr.s_addr, server->h_addr, server->h_length);
-
-  if (connect(sockfd, (struct sockaddr*)&serv_addr, sizeof(serv_addr)) < 0)
-  {
-    printf("\nError connecting.");
+void init_string(struct string *s) {
+  s->length = 0;
+  s->text = malloc(s->length+1);
+  if (s->text == NULL) {
+    fprintf(stderr, "malloc() failed\n");
+    exit(EXIT_FAILURE);
   }
-
-  total = strlen(requestText);
-  sent = 0;
-  do {
-    bytes = write(sockfd, mesage+sent, total-sent);
-    if (bytes < 0) printf("\nError writing message to socket.");
-    if (bytes == 0) break;
-    sent += bytes;
-  } while (sent < total);
-
-  memset(response, 0, sizeof(response));
-  total = sizeof(response) - 1;
-  received = 0;
-
-  do {
-    bytes = read(sockfd, response+receieved, total-received);
-    if (bytes < 0) printf("\nError reading message to socket.");
-    if (bytes == 0) break;
-    received += bytes;
-  } while (received < total);
-
-  if (receieved == total) printf("\nError storing complete response.");
-
-  close(sockfd);
-
-  return response;
+  s->text[0] = '\0';
+  printf("\ninit_string is chill.");
 }
 
-void parseResults(char response[4096])
+size_t writefunc(void *ptr, size_t size, size_t nmemb, struct string *s)
+{
+  size_t new_len = s->length + size*nmemb;
+  s->text = realloc(s->text, new_len+1);
+  if (s->text == NULL) {
+    fprintf(stderr, "realloc() failed\n");
+    exit(EXIT_FAILURE);
+  }
+  memcpy(s->text+s->length, ptr, size*nmemb);
+  s->text[new_len] = '\0';
+  s->length = new_len;
+
+  printf("\nwritefunc is chill.");
+
+  return size*nmemb;
+}
+
+char* sendRequest(char* requestURI)
+{
+  CURL *curl;
+  CURLcode result;
+
+  curl = curl_easy_init();
+  if (curl)
+  {
+    struct string s;
+    init_string(&s);
+
+    curl_easy_setopt(curl, CURLOPT_URL, requestURI);
+    curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, writefunc);
+    curl_easy_setopt(curl, CURLOPT_WRITEDATA, &s);
+
+    printf("\ncurl options set.");
+    result = curl_easy_perform(curl);
+
+    printf("\nResponse: %s\nResult: %d", s.text, result);
+    
+    strcpy(httpResponse, s.text);
+
+    free(s.text);
+
+    curl_easy_cleanup(curl);
+
+    return httpResponse;
+  }
+}
+
+void parseResults(char* response)
 {
   cJSON *items = NULL;
   cJSON *item = NULL;
@@ -78,26 +96,26 @@ void parseResults(char response[4096])
     printf("\nTitle:\t%s", title->valuestring);
     printf("\nLink:\t%s", link->valuestring);
     printf("\nSnippet:\t %s", snippet->valuestring);
-    printf("\n------------------------------------------------------------------")
+    printf("\n------------------------------------------------------------------");
   }
 }
 
 void doSearch(char searchTerm[100])
 {
-  char googCX[33] = "015041558588304470797:lhyjceovlrd";
-  char googAPIKey[39] = "AIzaSyC94Y5BUd9QQ24MlamiR7AS7gUbtkZDcjc";
-  char httpRequest[1024];
-  char baseURI[43] = "https://www.googleapis.com/customsearch/v1?";
-  char requestURI[100];
+  char* googCX = "015041558588304470797:lhyjceovlrd";
+  char* googAPIKey = "AIzaSyC94Y5BUd9QQ24MlamiR7AS7gUbtkZDcjc";
+  char* httpRequest;
+  char* baseURI = "https://www.googleapis.com/customsearch/v1?";
+  char* requestURI;
 
   sprintf(requestURI, "%skey=%s&cx=%s&q=%s", baseURI, googAPIKey, googCX, searchTerm);
 
-  sprintf(httpRequest, "GET %s", requestURI);
+  //sprintf(httpRequest, "GET %s", requestURI);
 
-  parseResults(sendRequest(httpRequest));
+  printf("\n%s", httpRequest);
+
+  parseResults(sendRequest(requestURI));
 }
-
-
 
 int main() {
   int choice;
@@ -105,7 +123,7 @@ int main() {
 
   while(1){
 
-  printf("Welcome to your wishlist\n");
+  printf("\nWelcome to your wishlist\n");
   printf("------------------------\n");
   printf("Menu:\n");
   printf("------------------------\n");
@@ -132,6 +150,7 @@ int main() {
 
   if (choice == 4){
     printf("search for an item successful\n");
+    doSearch("test");
   }
 
   if (choice == 5){
