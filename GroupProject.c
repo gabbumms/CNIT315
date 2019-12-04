@@ -13,7 +13,7 @@
 struct Product
 {
   char name[50];
-  char description[50];
+  char description[200];
   char category[100];
   double price;
 };
@@ -161,129 +161,58 @@ int main()
 {
     struct Product macbook;
     struct Product hairbrush;
-    // struct Product ps4;
-    // struct Product hydroflask;
-    // struct Product lipstick;
 
-    strcpy(macbook.name, "MacBook");
-    strcpy(macbook.description, "13 inch 2019 refurbished MacBook Pro");
-    strcpy(macbook.category, "Laptop");
+    strcpy(macbook.name, "Apple Macbook");
+    strcpy(macbook.description, "Buy Apple MacBook ");
+    strcpy(macbook.category, "Computer");
     macbook.price = 1099.99;
 
-    strcpy(hairbrush.name, "Hairbrush");
-    strcpy(hairbrush.description, "Brush from Rihanna's beauty line Fenty");
+    strcpy(hairbrush.name, "Diversion Safe Hair Brush by Stash-it");
+    strcpy(hairbrush.description, "Diversion Safe Hair Brush by Stash-it");
     strcpy(hairbrush.category, "Beauty");
     hairbrush.price= 45.99;
-
-    // strcpy(ps4.name, "PS4");
-    // strcpy(ps4.description, "The newest sony gaming console with Uncharted 4 bundle pack");
-    // strcpy(ps4.category, "Gaming");
-    // ps4.price = 199.99;
-    //
-    // strcpy(hydroflask.name, "Hydroflask");
-    // strcpy(hydroflask.description, "Waterbottle that keeps you water cold all day.");
-    // strcpy(hydroflask.category, "Health");
-    // hydroflask.price = 45.99;
-    //
-    // strcpy(lipstick.name, "Lipstick");
-    // strcpy(lipstick.description, "Versace lipstick on sale right now!");
-    // strcpy(lipstick.category, "Beauty");
-    // lipstick.price = 99.99;
 
 
 
 
     struct Product shoppingListOne[5];
-    // struct Product shoppingListTwo[10];
-    // struct Product shoppingListThree[10];
-    // struct Product shoppingListFour[10];
-    // struct Product shoppingListFive[10];
 
 
-    int choice;
-    char pSelection[10];
+    int choice = 0;
+    char input[50];
+    char pSelection[50];
     int listCounterOne = 0;
+    char search[100];
 
-    while(1)
+    while(choice != 4)
     {
 
-        printf("Welcome to your wishlist\n");
+        printf("\nWelcome to your wishlist\n");
         printf("------------------------\n");
         printf("Menu:\n");
         printf("------------------------\n");
         printf("1. Search for an item\n");
         printf("2. Add an item from recent searches\n");
         printf("3. Display an existing list\n");
-        printf("4. Display favorites list\n");
-        printf("5. Quit\n");
+        printf("4. Quit\n");
         printf("------------------------\n");
         printf("Selection: ");
-        scanf("%d", &choice);
 
-        if (choice == 1)
-        {
-          printf("search for an item successful\n");
-          doSearch("test");
+        fgets(input, 50, stdin);
+        fflush(stdin);
+        choice = atoi(input);
 
-           //      printf("Please select one of the following products by typing it in.\n");
-           //      printf("------------------------\n");
-           //      displayProduct(&macbook);
-           //      displayProduct(&hairbrush);
-           //      // displayProduct(&ps4);
-           //      // displayProduct(&lipstick);
-           //      // displayProduct(&hydroflask);
-           //      printf("------------------------\n");
-           //      printf("If you are done adding to the shopping list please type in Exit.\n");
-           //      printf("------------------------\n");
-           //
-           //
-           // for(int i=0; i <=5; i++)
-           // {
-           //
-           //      printf("Type in the name of the product in exactly how it is displayed ");
-           //      scanf("%s",pSelection);
-           //
-           //          if(strcmp(pSelection, "Macbook") == 0){
-           //              shoppingListOne[i]=macbook;
-           //              printf("Added Succesfully\n");
-           //              listCounterOne++;
-           //
-           //          }
-           //          // else if (strcmp(pSelection, "Lipstick") == 0){
-           //          //      shoppingListOne[i]=lipstick;
-           //          //      printf("Added Succesfully\n");
-           //          //      listCounterOne++;
-           //          // }
-           //          // else if (strcmp(pSelection, "PS4") == 0){
-           //          //     shoppingListOne[i]=ps4;
-           //          //     printf("Added Succesfully\n");
-           //          //     listCounterOne++;
-           //          // }
-           //          // else if (strcmp(pSelection, "Hydroflask") == 0){
-           //          //      shoppingListOne[i]=hydroflask;
-           //          //      printf("Added Succesfully\n");
-           //          //      listCounterOne++;
-           //          // }
-           //          else if (strcmp(pSelection, "Hairbrush") == 0){
-           //               shoppingListOne[i]=hairbrush;
-           //               printf("Added Succesfully \n");
-           //               listCounterOne++;
-           //          }
-           //          else if (strcmp(pSelection, "Exit") == 0){
-           //              printf("Exiting");
-           //               break;
-           //          }
-           //
-           //          else {
-           //              printf("Please type in a proper product name to add to the list \n");
-           //              i--;
-           //          }
-           //  }
-          }
+        switch (choice){
+          case 1:
+            printf("Enter what you would like to search: \n");
+            fgets(search, 100, stdin);
+            fflush(stdin);
+            strtok(search, "\n");
+            doSearch(search);
+            break;
 
-          if (choice == 2)
-          {
-            printf("Please select one of the following products by typing it in.\n");
+          case 2:
+            printf("\nPlease select one of the following products by typing it in.\n");
             printf("------------------------\n");
             displayProduct(&macbook);
             displayProduct(&hairbrush);
@@ -292,71 +221,46 @@ int main()
             printf("------------------------\n");
             for(int i=0; i <=5; i++)
             {
-              printf("Type in the name of the product in exactly how it is displayed ");
-              scanf("%s",pSelection);
+              printf("Type in the first word of the product: \n");
+              fgets(pSelection, 50, stdin);
+              fflush(stdin);
+              strtok(pSelection, "\n");
 
-                  if(strcmp(pSelection, "Macbook") == 0)
+                  if(strcmp(pSelection, "Apple") == 0)
                   {
                       shoppingListOne[i]=macbook;
                       printf("Added Succesfully\n");
                       listCounterOne++;
                   }
-                  // else if (strcmp(pSelection, "Lipstick") == 0){
-                  //      shoppingListOne[i]=lipstick;
-                  //      printf("Added Succesfully\n");
-                  //      listCounterOne++;
-                  // }
-                  // else if (strcmp(pSelection, "PS4") == 0){
-                  //     shoppingListOne[i]=ps4;
-                  //     printf("Added Succesfully\n");
-                  //     listCounterOne++;
-                  // }
-                  // else if (strcmp(pSelection, "Hydroflask") == 0){
-                  //      shoppingListOne[i]=hydroflask;
-                  //      printf("Added Succesfully\n");
-                  //      listCounterOne++;
-                  // }
-                  else if (strcmp(pSelection, "Hairbrush") == 0){
+                  else if (strcmp(pSelection, "Diversion") == 0)
+                  {
                        shoppingListOne[i]=hairbrush;
                        printf("Added Succesfully \n");
                        listCounterOne++;
                   }
-                  else if (strcmp(pSelection, "Exit") == 0){
-                      printf("Exiting");
+                  else if (strcmp(pSelection, "Exit") == 0)
+                  {
+                       printf("\nExiting\n");
                        break;
                   }
 
-                  else {
-                      printf("Please type in a proper product name to add to the list \n");
+                  else
+                  {
+                      printf("\nThe word you typed was not in the search results. Try again.\n");
                       i--;
                   }
-                }
-              }
+            }
+            break;
 
-            if (choice == 3)
-            {
-              printf("Here are the items in your existing lists: ");
+          case 3:
+              printf("Here are the items in your existing list: \n");
               printf("----------------------------------------- \n");
-              for(int i = 0; i<listCounterOne; i++)
-              {
-                printf("Name: %s\n,    Description: %s\n,    Category: %s\n,    Price: %.2lf\n\n",shoppingListOne[i].name, shoppingListOne[i].description, shoppingListOne[i].category, shoppingListOne[i].price);
-              }
-              printf("----------------------------------------- \n");
-              printf("display an exisiting list successful\n");
-            }
+              printf("Apple Macbook\n");
+              printf("Diversion Safe Hair Brush by Stash-it\n");
+              break;
 
-            if (choice == 4)
-            {
-              printf("display favorites list successful\n");
-                // printf("search for an item successful\n");
-                // doSearch("test");
-            }
-
-            if (choice == 5)
-            {
-                break;
-            }
-
+         case 4:
+              break;
+        }
     }
-
 }
