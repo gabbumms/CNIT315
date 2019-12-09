@@ -15,14 +15,100 @@ struct Product
   char name[50];
   char description[200];
   char category[100];
-  double price;
+  int price;
+  struct Product *next;
 };
 
-void displayProduct(struct Product *product)
+struct Node //node with just a pointer
 {
-  printf("Name: %s\n,    Description: %s\n,    Category: %s\n,    Price: %.2lf\n\n",product->name, product->description, product->category, product->price);
+    struct Product *start;
+};
+
+struct Product *CreateListNode(char name[], char description[], char category[], int price); //struct statment for create list node
+
+struct Node *CreateListNoNodes() //just has pointer
+{
+    struct Node *Node = (struct Node*)malloc(sizeof(struct Node));
+    Node -> start = NULL;
+    return Node;
 }
 
+struct Product *CreateListNode(char name[], char description[], char category[], int price) //has data points
+{
+    struct Product *temp = (struct Product*)malloc(sizeof(struct Product));
+    strcpy(temp -> name, name);
+    strcpy(temp -> description, description);
+    strcpy(temp -> category, category);
+    temp -> price = price;
+    temp -> next = NULL;
+    return temp;
+}
+
+void InsertProduct(struct Node *Node, char name[], char description[], char category[], int price) //https://stackoverflow.com/questions/36528584/c-linked-list-how-to-insert-node-at-front
+{
+    struct Product *current = NULL;
+
+    if (Node->start == NULL)
+    {
+        Node->start = CreateListNode(name, description, category, price);
+    }
+    else
+    {
+        current = CreateListNode(name, description, category, price);
+        current -> next = Node -> start;
+        Node -> start = current; //sets what is inputted for creatlistnode to the current start node
+    }
+    printf("Saved product.\n"); //confirms this has been done
+    return;
+}
+
+void Traverse(struct Node *Node)
+{
+    struct Product *CurrentNode = Node -> start;
+    //If there is no data in the list
+    if (CurrentNode == NULL)
+    {
+        printf("Create the data in list before searching\n");
+        return;
+    }
+    else
+    {
+        while(CurrentNode -> next != NULL)
+        {
+            printf("Product Name: %s", CurrentNode -> name);
+            printf("Description: %s", CurrentNode -> description);
+            printf("Category: %s", CurrentNode -> category);
+            printf("Price: %d\n", CurrentNode -> price);
+            CurrentNode = CurrentNode -> next;
+        }
+        printf("Product Name: %s", CurrentNode -> name);
+        printf("Description: %s", CurrentNode -> description);
+        printf("Category: %s", CurrentNode -> category);
+        printf("Price: %d\n", CurrentNode -> price);
+    }
+    return;
+}
+
+void TraverseProducts(struct Node *Node) //traverses list based on PUID
+{
+    struct Product *current = Node -> start;
+
+    if (current == NULL)
+    {
+        printf("No data.\n");
+        return;
+    }
+    else
+    {
+        while(current -> next != NULL)
+        {
+            printf("Product name: %s", current -> name);
+            current = current -> next;
+        }
+        printf("Product name: %s", current -> name);
+    }
+    return;
+}
 
 char *httpResponse;
 
@@ -115,7 +201,6 @@ int doSearch(char *searchTerm)
 
   char *testURI = "https://www.googleapis.com/customsearch/v1?key=AIzaSyC94Y5BUd9QQ24MlamiR7AS7gUbtkZDcjc&cx=015041558588304470797:lhyjceovlrd&q=test";
 
-  //printf("\nURL Constructed: %s", requestURI);
   CURL *c;
   CURLcode result;
 
@@ -159,42 +244,30 @@ int doSearch(char *searchTerm)
 
 int main()
 {
-    struct Product macbook;
-    struct Product hairbrush;
+  char name[50];
+  char description[200];
+  char category[100];
+  char tempPrice[10];
+  int price;
 
-    strcpy(macbook.name, "Apple Macbook");
-    strcpy(macbook.description, "Buy Apple MacBook ");
-    strcpy(macbook.category, "Computer");
-    macbook.price = 1099.99;
-
-    strcpy(hairbrush.name, "Diversion Safe Hair Brush by Stash-it");
-    strcpy(hairbrush.description, "Diversion Safe Hair Brush by Stash-it");
-    strcpy(hairbrush.category, "Beauty");
-    hairbrush.price= 45.99;
-
-
-
-
-    struct Product shoppingListOne[5];
-
+  struct Node *Node;
+  Node = CreateListNoNodes();
 
     int choice = 0;
     char input[50];
-    char pSelection[50];
-    int listCounterOne = 0;
     char search[100];
 
-    while(choice != 4)
+    while(choice != 5)
     {
-
         printf("\nWelcome to your wishlist\n");
         printf("------------------------\n");
         printf("Menu:\n");
         printf("------------------------\n");
         printf("1. Search for an item\n");
         printf("2. Add an item from recent searches\n");
-        printf("3. Display an existing list\n");
-        printf("4. Quit\n");
+        printf("3. Display only names of added items\n");
+        printf("4. Display all information of added items\n");
+        printf("5. Quit\n");
         printf("------------------------\n");
         printf("Selection: ");
 
@@ -212,54 +285,47 @@ int main()
             break;
 
           case 2:
-            printf("\nPlease select one of the following products by typing it in.\n");
+            printf("\nPlease enter the product information from your recent search\n");
             printf("------------------------\n");
-            displayProduct(&macbook);
-            displayProduct(&hairbrush);
-            printf("------------------------\n");
-            printf("If you are done adding to the shopping list please type in Exit.\n");
-            printf("------------------------\n");
-            for(int i=0; i <=5; i++)
-            {
-              printf("Type in the first word of the product: \n");
-              fgets(pSelection, 50, stdin);
+
+              printf("Type in the name of the product: \n");
+              fgets(name, 50, stdin);
               fflush(stdin);
-              strtok(pSelection, "\n");
 
-                  if(strcmp(pSelection, "Apple") == 0)
-                  {
-                      shoppingListOne[i]=macbook;
-                      printf("Added Succesfully\n");
-                      listCounterOne++;
-                  }
-                  else if (strcmp(pSelection, "Diversion") == 0)
-                  {
-                       shoppingListOne[i]=hairbrush;
-                       printf("Added Succesfully \n");
-                       listCounterOne++;
-                  }
-                  else if (strcmp(pSelection, "Exit") == 0)
-                  {
-                       printf("\nExiting\n");
-                       break;
-                  }
+              printf("Type in a short description of the product: \n");
+              fgets(description, 200, stdin);
+              fflush(stdin);
 
-                  else
-                  {
-                      printf("\nThe word you typed was not in the search results. Try again.\n");
-                      i--;
-                  }
-            }
+              printf("Type in the category of this product: \n");
+              fgets(category, 100, stdin);
+              fflush(stdin);
+
+              printf("Type in the price of this product: \n");
+              fgets(tempPrice, 30, stdin);
+              fflush(stdin);
+
+              while(!(price = atoi(tempPrice)))
+              {
+                printf("Age is an integer: ");
+                fgets(tempPrice, 30, stdin);
+                fflush(stdin);
+              }
+
+              InsertProduct(Node, name, description, category, price);
+
             break;
 
           case 3:
-              printf("Here are the items in your existing list: \n");
+              printf("Here are the names of the items in your existing list: \n");
               printf("----------------------------------------- \n");
-              printf("Apple Macbook\n");
-              printf("Diversion Safe Hair Brush by Stash-it\n");
+              TraverseProducts(Node);
               break;
-
-         case 4:
+          case 4:
+            printf("Here are the items in your existing list: \n");
+            printf("----------------------------------------- \n");
+            Traverse(Node);
+            break;
+         case 5:
               break;
         }
     }
